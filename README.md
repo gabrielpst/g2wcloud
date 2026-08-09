@@ -60,6 +60,6 @@ para as licenças de cada dependência.
 ## Contato
 
 **G2W Tecnologia**
-Site: [g2wtecnologia.net](https://g2wtecnologia.net)
+Site: [cloud.g2wtecnologia.net](https://cloud.g2wtecnologia.net/)
 WhatsApp: +55 67 99608-6281
 E-mail: contato@g2wtecnologia.net
