@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: 2026 G2W Tecnologia
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# ONLYOFFICE Document Server embarcado no G2W Cloud — editor de documentos
+# integrado (Word/Excel/PowerPoint). Roda em Docker isolado, separado do
+# resto da instalação (que é nativa, sem Docker) — o Document Server é um
+# serviço Node.js à parte, não tem relação com o PHP/nginx do Nextcloud.
+#
+# Uso:
+#   docker compose up -d
+#
+# Depois de subir pela primeira vez, rodar scripts/onlyoffice-fix-private-ip.sh
+# (instalação 100% interna, sem domínio público — ver pegadinha documentada
+# em 01 - Redes/00 - Infraestrutura Zabbix Central/rotinas/implantar-nextcloud-onlyoffice.md)
+
+services:
+  documentserver:
+    image: onlyoffice/documentserver:latest
+    container_name: g2wcloud-onlyoffice
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8082:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
+      - JWT_HEADER=Authorization
+      - JWT_IN_BODY=true
+    volumes:
+      - onlyoffice-data:/var/www/onlyoffice/Data
+      - onlyoffice-log:/var/log/onlyoffice
+      - onlyoffice-config:/etc/onlyoffice/documentserver
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  onlyoffice-data:
+  onlyoffice-log:
+  onlyoffice-config:
