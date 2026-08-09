@@ -56,10 +56,11 @@ node_modules/
 /apps/files_external/3rdparty/irodsphp/prods/test*
 /apps/files_external/tests/config.*.php
 
-# ignore themes except the example and the README
+# ignore themes except the example, the README and our own G2W Cloud theme
 /themes/*
 !/themes/example
 !/themes/README
+!/themes/default
 
 # Love to people that develop the updater
 /updater
