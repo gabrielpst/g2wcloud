@@ -6,13 +6,24 @@
 # Server. Rodar depois que o docker-compose do Document Server já estiver
 # de pé (fix-private-ip.sh incluso).
 #
-#   sudo -u www-data bash configure-nextcloud.sh <url-do-document-server> <jwt-secret>
+# ⚠️ Duas URLs DIFERENTES, não a mesma (bug real, achado em produção
+# 2026-08-09 — usar 127.0.0.1 nas duas quebra o editor no navegador com
+# "Não foi possível conectar ao ONLYOFFICE", mesmo com tudo mais certo):
+#   - browser-url:   usada pelo NAVEGADOR do usuário (JS/iframe/WebSocket).
+#                     Precisa ser um endereço que o PC de quem acessa
+#                     alcança de verdade — nunca 127.0.0.1/localhost.
+#   - internal-url:   usada pelo Nextcloud (PHP, servidor-a-servidor). Pode
+#                     ser 127.0.0.1 já que os dois rodam na mesma LXC.
 #
-# Ex: sudo -u www-data bash configure-nextcloud.sh http://127.0.0.1:8082/ abc123...
+#   sudo -u www-data bash configure-nextcloud.sh <browser-url> <internal-url> <jwt-secret>
+#
+# Ex: sudo -u www-data bash configure-nextcloud.sh \
+#       http://192.168.4.104:8082/ http://127.0.0.1:8082/ abc123...
 set -euo pipefail
 
-DOC_SERVER_URL="${1:?Uso: configure-nextcloud.sh <url> <jwt-secret>}"
-JWT_SECRET="${2:?Uso: configure-nextcloud.sh <url> <jwt-secret>}"
+DOC_SERVER_BROWSER_URL="${1:?Uso: configure-nextcloud.sh <browser-url> <internal-url> <jwt-secret>}"
+DOC_SERVER_INTERNAL_URL="${2:?Uso: configure-nextcloud.sh <browser-url> <internal-url> <jwt-secret>}"
+JWT_SECRET="${3:?Uso: configure-nextcloud.sh <browser-url> <internal-url> <jwt-secret>}"
 
 NC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OCC="php ${NC_DIR}/occ"
@@ -22,8 +33,8 @@ $OCC app:list --output=json | grep -q '"onlyoffice"' || $OCC app:install onlyoff
 $OCC app:enable onlyoffice
 
 echo "> Configurando URLs e segredo JWT..."
-$OCC config:app:set onlyoffice DocumentServerUrl --value="$DOC_SERVER_URL"
-$OCC config:app:set onlyoffice DocumentServerInternalUrl --value="$DOC_SERVER_URL"
+$OCC config:app:set onlyoffice DocumentServerUrl --value="$DOC_SERVER_BROWSER_URL"
+$OCC config:app:set onlyoffice DocumentServerInternalUrl --value="$DOC_SERVER_INTERNAL_URL"
 $OCC config:app:set onlyoffice jwt_secret --value="$JWT_SECRET"
 $OCC config:app:set onlyoffice jwt_header --value="Authorization"
 $OCC config:app:set onlyoffice jwt_in_body --value="true"

@@ -18,8 +18,15 @@ services:
     image: onlyoffice/documentserver:latest
     container_name: g2wcloud-onlyoffice
     restart: unless-stopped
+    # Porta aberta na rede (não só loopback): o NAVEGADOR do usuário precisa
+    # alcançar essa porta pra carregar o editor (JS/iframe/WebSocket) — é
+    # diferente da chamada servidor-a-servidor que o Nextcloud faz (essa sim
+    # usa DocumentServerInternalUrl=127.0.0.1, resolvido dentro da própria
+    # LXC). Publicar só em 127.0.0.1 aqui quebra o editor no navegador com
+    # "Não foi possível conectar ao ONLYOFFICE" mesmo com tudo mais certo
+    # (bug real, achado em produção 2026-08-09).
     ports:
-      - "127.0.0.1:8082:80"
+      - "8082:80"
     environment:
       - JWT_ENABLED=true
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}

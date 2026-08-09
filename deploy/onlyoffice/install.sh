@@ -26,7 +26,16 @@ echo "> Aplicando correcao de IP privado..."
 bash fix-private-ip.sh
 
 echo "> Configurando o conector no Nextcloud..."
-sudo -u www-data bash configure-nextcloud.sh "http://127.0.0.1:8082/" "$JWT_SECRET"
+# URL que o NAVEGADOR do usuário vai usar — precisa ser o IP real da LXC
+# na rede, nunca 127.0.0.1 (isso resolveria pra loopback do PC de quem
+# acessa, não da LXC). Detecta o IP da interface principal automaticamente;
+# sobrescrever com ONLYOFFICE_BROWSER_HOST=<ip-ou-dominio> se precisar
+# (ex: quando isso for exposto por um domínio público mais pra frente).
+BROWSER_HOST="${ONLYOFFICE_BROWSER_HOST:-$(hostname -I | awk '{print $1}')}"
+sudo -u www-data bash configure-nextcloud.sh \
+    "http://${BROWSER_HOST}:8082/" \
+    "http://127.0.0.1:8082/" \
+    "$JWT_SECRET"
 
 echo
 echo "=== Concluido ==="
