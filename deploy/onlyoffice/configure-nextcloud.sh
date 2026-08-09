@@ -32,6 +32,12 @@ echo "> Permissoes necessarias pra instalacao 100% interna (sem dominio publico)
 $OCC config:system:set allow_local_remote_servers --value=true --type=boolean
 
 echo "> Conferindo..."
-$OCC onlyoffice:documentserver --check || echo "AVISO: check reportou algo — normal na primeira vez antes do fix-private-ip.sh rodar"
+if ! $OCC onlyoffice:documentserver --check; then
+	echo "ERRO: onlyoffice:documentserver --check falhou."
+	echo "Causas mais comuns: fix-private-ip.sh não rodou (ou rodou antes do"
+	echo "container ficar saudável), ou o local.json perdeu a config de JWT"
+	echo "(nunca sobrescrever esse arquivo — só mesclar, ver fix-private-ip.sh)."
+	exit 1
+fi
 
 echo "Concluido."
