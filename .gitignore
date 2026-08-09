@@ -183,3 +183,6 @@ cypress/snapshots
 cypress/videos
 
 /.direnv
+
+# G2W: segredos de deploy (JWT do ONLYOFFICE, etc.) — nunca versionar
+deploy/**/.env
