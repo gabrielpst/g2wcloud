@@ -276,6 +276,24 @@ class DefaultTheme implements ITheme {
 
 	#[\Override]
 	public function getCustomCss(): string {
-		return '';
+		// ⚠️ PATCH G2W (2026-08-09) — conferir se ainda se aplica em merge futuro
+		// de upstream/stable34. Ver contexto/2026-08-09-g2wcloud-fork-identidade-e-deploy.md
+		return '
+			/* Esconde o bloco promocional hardcoded da Nextcloud GmbH nas
+			   Configurações Pessoais (GitHub deles, redes sociais deles,
+			   newsletter deles) — não vem de nenhuma configuração, e o
+			   próprio código só o esconde sozinho pra quem tem assinatura
+			   Enterprise. Não é o nosso caso, escondemos sempre. */
+			.development-notice { display: none !important; }
+
+			/* Fundo diferenciado por variante clara/escura. O Nextcloud não
+			   diferencia --color-background-plain por padrão (só a IMAGEM de
+			   fundo tem fallback por variante) — sem isso, o modo claro
+			   herdava a mesma cor quase-preta configurada pro modo escuro. */
+			[data-theme-default] {
+				--color-background-plain: #F3F7F4;
+				--color-background-plain-text: #16241b;
+			}
+		';
 	}
 }
